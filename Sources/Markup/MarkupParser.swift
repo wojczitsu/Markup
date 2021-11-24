@@ -34,7 +34,8 @@ public struct MarkupParser {
 
 			case .rightDelimiter(let delimiter) where openingDelimiters.contains(delimiter):
 				guard let containerNode = close(delimiter: delimiter, elements: elements) else {
-					fatalError("There is no MarkupNode for \(delimiter)")
+					print("There is no MarkupNode for \(delimiter)")
+					return []
 				}
 				return [containerNode]
 

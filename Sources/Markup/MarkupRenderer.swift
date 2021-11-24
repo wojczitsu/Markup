@@ -29,9 +29,7 @@ public final class MarkupRenderer {
 
 private extension MarkupNode {
 	func render(withAttributes attributes: [NSAttributedString.Key: Any]) -> NSAttributedString {
-		guard let currentFont = attributes[NSAttributedString.Key.font] as? Font else {
-			fatalError("Missing font attribute in \(attributes)")
-		}
+		let currentFont = attributes[NSAttributedString.Key.font] as? Font
 
 		switch self {
 		case .text(let text):
@@ -39,12 +37,16 @@ private extension MarkupNode {
 
 		case .strong(let children):
 			var newAttributes = attributes
-			newAttributes[NSAttributedString.Key.font] = currentFont.boldFont()
+			if let currentFont = currentFont {
+				newAttributes[NSAttributedString.Key.font] = currentFont.boldFont()
+			}
 			return children.map { $0.render(withAttributes: newAttributes) }.joined()
 
 		case .emphasis(let children):
 			var newAttributes = attributes
-			newAttributes[NSAttributedString.Key.font] = currentFont.italicFont()
+			if let currentFont = currentFont {
+				newAttributes[NSAttributedString.Key.font] = currentFont.italicFont()
+			}
 			return children.map { $0.render(withAttributes: newAttributes) }.joined()
 
 		case .delete(let children):
@@ -78,11 +80,10 @@ extension Array where Element: NSAttributedString {
 
 		func addingSymbolicTraits(_ traits: UIFontDescriptor.SymbolicTraits) -> UIFont? {
 			let newTraits = fontDescriptor.symbolicTraits.union(traits)
-			guard let descriptor = fontDescriptor.withSymbolicTraits(newTraits) else {
-				return nil
+			if let descriptor = fontDescriptor.withSymbolicTraits(newTraits) {
+				return UIFont(descriptor: descriptor, size: 0)
 			}
-
-			return UIFont(descriptor: descriptor, size: 0)
+			return self
 		}
 	}
 
